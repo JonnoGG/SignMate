@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ASL Sentence Practice</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<div class="container">
+    <h1>ASL Sentence Practice</h1>
+    <p>Watch the videos and type the sentence below:</p>
+
+    <!-- Display the ASL videos sequentially -->
+    <div id="video-container">
+        {% for video in sentence_videos %}
+        <video class="video" id="video" controls>
+            <source id="video-source" src="{{ url_for('static', filename='videos/' + video['video_id']|string) }}" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+        <p>{{ video['word'] }}</p> <!-- Display the word under the video -->
+        {% endfor %}
+    </div>
+
+    <div id="sentence-input-container" style="display: none;">
+        <form id="user-input-form">
+            <input type="text" id="user-input" placeholder="Type the sentence here" required>
+            <input type="hidden" id="correct-answer" value="{{ sentence }}">
+            <button type="submit">Submit</button>
+        </form>
+        <div class="result" id="result"></div>
+    </div>
+</div>
+
+<script>
+    let currentVideoIndex = 0;
+    let videos = document.querySelectorAll('video');
+    let videoContainer = document.getElementById('video-container');
+    let sentenceInputContainer = document.getElementById('sentence-input-container');
+
+    // Play videos sequentially
+    function playNextVideo() {
+        if (currentVideoIndex < videos.length) {
+            videos[currentVideoIndex].play();
+            videos[currentVideoIndex].onended = function () {
+                currentVideoIndex++;
+                playNextVideo();
+            };
+        } else {
+            // After all videos have played, show the input form
+            videoContainer.style.display = 'none';
+            sentenceInputContainer.style.display = 'block';
+        }
+    }
+
+    // Start playing videos
+    playNextVideo();
+
+    // Handle the form submission
+    document.getElementById('user-input-form').addEventListener('submit', function (event) {
+        event.preventDefault();
+
+        const userInput = document.getElementById('user-input').value;
+        const correctAnswer = document.getElementById('correct-answer').value;
+
+        fetch('/check_answer', {
+            method: 'POST',
+            body: new URLSearchParams({
+                'user_input': userInput,
+                'correct_answer': correctAnswer
+            }),
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('result').textContent = data.result === "correct" ? "Correct!" : "Incorrect, try again!";
+            });
+    });
+</script>
+
+</body>
+</html>
