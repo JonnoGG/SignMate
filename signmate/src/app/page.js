@@ -4,41 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import React, { useState, useEffect, useRef } from "react";
 
-const VideoPlayer = ({ videos }) => {
-    const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
-    const videoRef = useRef(null);
-
-    // Handle video end
-    const handleVideoEnd = () => {
-        if (currentVideoIndex < videos.length - 1) {
-            setCurrentVideoIndex((prevIndex) => prevIndex + 1);
-        }
-    };
-
-    const replayVideos = () => {
-        setCurrentVideoIndex(0);
-    };
-
-    // Automatically play the current video once the index changes
-    useEffect(() => {
-        if (videoRef.current) {
-            videoRef.current.load();
-            videoRef.current.play();
-        }
-    }, [currentVideoIndex]);
-
-    return (
-        <div>
-            <video ref={videoRef} width="750" height="500" onEnded={handleVideoEnd} autoPlay muted>
-                <source src={videos[currentVideoIndex]} type="video/mp4" />
-                Your browser does not support the video tag.
-            </video>
-            <Button variant="outline" onClick={replayVideos}>
-                Replay
-            </Button>
-        </div>
-    );
-};
+const VideoPlayer = ({ videos }) => {};
 
 // Fetch data function
 async function fetchData() {
@@ -82,12 +48,14 @@ export default function Home() {
     const [inputSentence, setInputSentence] = useState("");
     const [results, setResults] = useState([]);
     const [submitted, setSubmitted] = useState(false);
+    const [isHidden, setIsHidden] = useState(true);
 
     const handleSubmit = (e) => {
         e.preventDefault();
         const checkResults = sentenceChecker(correctSentence, inputSentence);
         setResults(checkResults);
         setSubmitted(true);
+        setIsHidden(false);
     };
     // Fetch data on mount
     useEffect(() => {
@@ -123,73 +91,145 @@ export default function Home() {
         }
 
         setCorrectSentence(correctSentence);
+
+        replayVideos();
+        setIsHidden(true);
     };
+    const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
+    const videoRef = useRef(null);
+
+    // Handle video end
+    const handleVideoEnd = () => {
+        if (currentVideoIndex < videos.length - 1) {
+            setCurrentVideoIndex((prevIndex) => prevIndex + 1);
+        }
+    };
+
+    const replayVideos = () => {
+        setCurrentVideoIndex(0);
+    };
+
+    // Automatically play the current video once the index changes
+    useEffect(() => {
+        if (videoRef.current) {
+            videoRef.current.load();
+            videoRef.current.play();
+        }
+    }, [currentVideoIndex]);
 
     return (
         <div className="grid grid-rows-[20px_1fr_20px] justify-items-center min-h-screen font-[family-name:var(--font-geist-sans)]">
-            <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-                <div style={{ display: "flex", flexDirection: "row", alignItems: "left", gap: "10px" }}>
-                    <h1 className="text-5xl">Sign Mate</h1>
+            <main className="flex flex-col gap-8 row-start-2 items-center justify-center">
+                <div
+                    style={{
+                        display: "flex",
+                        flexDirection: "row",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: "10px",
+                    }}
+                >
+                    <h1 className="text-6xl drop-shadow-xl">Sign Mate</h1>
                     <img src="logo.png" width="50px" />
                 </div>
-                <VideoPlayer videos={videos} />
-                <Button variant="outline" onClick={() => newQuestion()}>
-                    New Question
-                </Button>
-                <div style={{ display: "flex", flexDirection: "column", alignItems: "left", gap: "10px" }}>
+                {/* <VideoPlayer videos={videos} /> */}
+                <video
+                    ref={videoRef}
+                    style={{ borderRadius: "25px" }}
+                    width="750"
+                    height="500"
+                    onEnded={handleVideoEnd}
+                    autoPlay
+                    muted
+                >
+                    <source src={videos[currentVideoIndex]} type="video/mp4" />
+                    Your browser does not support the video tag.
+                </video>
+                <div
+                    style={{
+                        display: "flex",
+                        flexDirection: "row",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: "10px",
+                    }}
+                >
+                    <Button variant="outline" onClick={replayVideos} className="purpleButton">
+                        Replay Videos
+                    </Button>
+                    <Button variant="outline" onClick={() => newQuestion()} className="purpleButton">
+                        New Question
+                    </Button>
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "10px" }}>
                     <form onSubmit={handleSubmit} style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                         <Input
                             type="text"
                             value={inputSentence}
                             onChange={(e) => setInputSentence(e.target.value)}
                             required
+                            style={{ width: "400px" }}
                         />
-                        <Button variant="outline">Check Sentence</Button>
+                        <Button variant="outline" className="purpleButton">
+                            Check Sentence
+                        </Button>
                     </form>
-                    {submitted && (
-                        <div>
-                            <div
-                                style={{
-                                    display: "flex",
-                                    flexDirection: "column",
-                                    alignItems: "center",
-                                    flexWrap: "wrap",
-                                    gap: "10px",
-                                }}
-                            >
-                                <div>
-                                    <h3>
-                                        <strong>Results:</strong>
-                                    </h3>
-                                </div>
-                                <div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
-                                    {results.map((result, index) => (
-                                        <div
-                                            key={index}
-                                            style={{
-                                                padding: "5px 10px",
-                                                backgroundColor: result.isCorrect ? "#d4edda" : "#f8d7da",
-                                                color: result.isCorrect ? "#155724" : "#721c24",
-                                                border: "1px solid",
-                                                borderColor: result.isCorrect ? "#c3e6cb" : "#f5c6cb",
-                                                borderRadius: "5px",
-                                            }}
-                                        >
-                                            {result.word} - {result.isCorrect ? "Correct" : "Incorrect"}
-                                        </div>
-                                    ))}
+                    <div
+                        style={{
+                            display: isHidden ? "none" : "flex", // Set display conditionally to "none" or "flex"
+                            flexDirection: "column",
+                            alignItems: "center",
+                            gap: "10px",
+                        }}
+                    >
+                        {submitted && (
+                            <div>
+                                <div
+                                    style={{
+                                        display: "flex",
+                                        flexDirection: "column",
+                                        alignItems: "center",
+                                        flexWrap: "wrap",
+                                        gap: "10px",
+                                    }}
+                                >
+                                    <div>
+                                        <h3>
+                                            <strong>Results:</strong>
+                                        </h3>
+                                    </div>
+                                    <div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
+                                        {results.map((result, index) => (
+                                            <div
+                                                key={index}
+                                                style={{
+                                                    padding: "5px 10px",
+                                                    backgroundColor: result.isCorrect ? "#d4edda" : "#f8d7da",
+                                                    color: result.isCorrect ? "#155724" : "#721c24",
+                                                    border: "1px solid",
+                                                    borderColor: result.isCorrect ? "#c3e6cb" : "#f5c6cb",
+                                                    borderRadius: "5px",
+                                                }}
+                                            >
+                                                {result.word} - {result.isCorrect ? "Correct" : "Incorrect"}
+                                            </div>
+                                        ))}
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    )}
-                </div>
-                <div>
-                    <form onSubmit={handleSubmit}>
+                        )}
+
                         <div>
-                            <label>Correct Sentence:</label>
-                            <p>{correctSentence}</p>
+                            <form onSubmit={handleSubmit}>
+                                <div>
+                                    <p>
+                                        <strong>Answer: </strong>
+                                        {correctSentence}
+                                    </p>
+                                </div>
+                            </form>
                         </div>
-                    </form>
+                    </div>
                 </div>
             </main>
         </div>
