@@ -1,14 +1,24 @@
 import json
 
-raw_file = open('data_/WLASL_v0.3.json')
+raw_file = open('data/map.json')
 json_raw = json.load(raw_file)
 
-new_file = open('data_new/map.json', 'w')
+new_file = open('data/new_map.json', 'w')
 
 new_data = []
 word_list = set()
 
+def check_file_exists(folder_path, filename):
+    file_path = os.path.join(folder_path, filename)
+    if os.path.isfile(file_path):
+        return True
+    else:
+        return False
+
+
 for item in json_raw:
+    if check_file_exists("data/videos", item['videoid']):
+        new_data = 
     word = item['gloss']
     if word in word_list:
         break
