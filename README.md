@@ -1,4 +1,4 @@
-#SignMate
+# SignMate
 ## Inspiration
 SignMate was inspired by the need to make communication more inclusive for the 466 million people worldwide living with disabling hearing loss. We wanted to create a tool that would help bridge the communication gap by enabling people to learn American Sign Language (ASL) in an interactive and engaging way.
 
