@@ -104,7 +104,7 @@ export default function Home() {
         if (wordsArray.length === 0) return [];
 
         const randomWords = [];
-        for (let i = 0; i < 3; i++) {
+        for (let i = 0; i < 5; i++) {
             const randIndex = Math.floor(Math.random() * wordsArray.length);
             randomWords.push(wordsArray[randIndex]);
         }
